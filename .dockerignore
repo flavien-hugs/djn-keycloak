@@ -1,0 +1,17 @@
+tests/
+secrets/
+.dockerignore
+.coveragerc
+.flake8
+.gitignore
+.git/
+client.http
+docker-compose.yaml
+Makefile
+README.md
+.pre-commit-config.yaml
+.isort.cfg
+.pytest_cache
+.idea/
+Dockerfile
+.vscode/

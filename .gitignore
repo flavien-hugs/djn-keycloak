@@ -1,0 +1,5 @@
+.vscode
+.git
+Pipfile.lock
+secrets
+*/migrations/*

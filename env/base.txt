@@ -1,0 +1,3 @@
+python-dotenv
+django-ninja
+python-keycloak

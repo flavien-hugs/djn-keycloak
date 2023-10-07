@@ -2,3 +2,4 @@
 .git
 Pipfile.lock
 secrets
+*/migrations/*

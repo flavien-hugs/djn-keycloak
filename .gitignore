@@ -1,0 +1,4 @@
+.vscode
+.git
+Pipfile.lock
+secrets

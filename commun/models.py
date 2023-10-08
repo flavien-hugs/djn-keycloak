@@ -19,7 +19,7 @@ class BaseTimeStampModel(models.Model):
     )
     updated_at = models.DateTimeField(
         verbose_name="date de mise à jour",
-        auto_now=True
+        default=now
     )
 
     class Meta:

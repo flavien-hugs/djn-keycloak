@@ -1,11 +1,10 @@
-FROM python:3.10
+FROM python:3.10-buster
 
 RUN echo "vm.overcommit_memory = 1" >> /etc/sysctl.conf
-RUN apt-get update && apt-get install -y sysfsutils
 
-WORKDIR /app
+WORKDIR /djnapp
 
-COPY ./env/base.txt /app/env/
+COPY ./env/base.txt /djnapp/env/
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
@@ -17,14 +16,12 @@ ENV PYTHONUNBUFFERED=1 \
 
 RUN python -m venv $VIRTUAL_ENV && \
     pip install --upgrade pip && \
-    pip install --no-cache-dir -r /app/env/base.txt
+    pip install --no-cache-dir -r /djnapp/env/base.txt
 
-COPY . /app
+COPY . /djnapp
 
-COPY ./entrypoint.sh /app
-RUN chmod +x /app/entrypoint.sh
+COPY ./entrypoint.sh /djnapp
+RUN chmod a+x /djnapp/entrypoint.sh
 
-RUN chgrp -R 0 /app && \
-    chmod -R g+rwX /app
-
-CMD ["python3", "manage.py", "runserver", "0.0.0.0:8000"]
+EXPOSE 8000
+ENTRYPOINT ["/djnapp/entrypoint.sh"]

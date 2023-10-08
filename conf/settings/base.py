@@ -8,14 +8,15 @@ abspath = os.path.abspath(__file__)
 dirname = os.path.dirname(os.path.dirname(abspath))
 BASE_DIR = os.path.dirname(dirname)
 
-env = dotenv_values("./secrets/app.djn.env")
+appenv = dotenv_values("./secrets/djn.env")
+kycenv = dotenv_values("./secrets/keycloak.env")
 
 
-SECRET_KEY = env.get("SECRET_KEY")
+SECRET_KEY = appenv.get("SECRET_KEY")
 
-DEBUG = env.get("DEBUG")
+DEBUG = appenv.get("DEBUG")
 ALLOWED_HOSTS = ["*"]
-ADMIN_URL = env.get("ADMIN_URL")
+ADMIN_URL = appenv.get("ADMIN_URL")
 AUTH_USER_MODEL = "account.CustomUser"
 
 INSTALLED_APPS = [
@@ -88,10 +89,12 @@ DATETIME_FORMAT = "l F o"
 DATE_INPUT_FORMATS = ("%d/%m/%Y", "%d-%m-%Y")
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-DJANGO_SETTINGS_MODULE = env.get("DJANGO_SETTINGS_MODULE")
+DJANGO_SETTINGS_MODULE = appenv.get("DJANGO_SETTINGS_MODULE")
 NINJA_PAGINATION_PER_PAGE = 10
 
-AUTH_SERVER_ROOT = env.get("KEYCLOAK_SERVER_URL")
-OIDC_RP_CLIENT_ID = env.get("KEYCLOAK_ADMIN_CLIENT_ID")
-OIDC_RP_REALM_NAME = env.get("KEYCLOAK_ADMIN_REALM_NAME")
-OIDC_RP_CLIENT_SECRET = env.get("KEYCLOAK_ADMIN_SECRET_KEY")
+OIDC_RP_USERNAME = kycenv.get("KEYCLOAK_USER")
+OIDC_RP_PASSWORD = kycenv.get("KEYCLOAK_PASSWORD")
+AUTH_SERVER_ROOT = kycenv.get("KEYCLOAK_SERVER_URL")
+OIDC_RP_REALM_NAME = kycenv.get("KEYCLOAK_REALM_NAME")
+OIDC_RP_CLIENT_ID = kycenv.get("KEYCLOAK_REALM_CLIENT_ID")
+OIDC_RP_CLIENT_SECRET = kycenv.get("KEYCLOAK_REALM_SECRET_KEY")

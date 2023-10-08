@@ -7,8 +7,7 @@ name = "pypi"
 python-dotenv = "*"
 django-ninja = "*"
 python-keycloak = "*"
-psycopg2-binary = "*"
-psycopg = "*"
+psycopg2 = "*"
 
 [dev-packages]
 pre-commit = "*"

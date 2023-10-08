@@ -1,13 +1,11 @@
 from typing import List, Tuple
 
-from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth import authenticate, logout, login
-
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from django.http import HttpRequest, HttpResponse, JsonResponse
 
 from ninja.pagination import paginate
+from account.helpers import KeycloakAdminHelper, KeycloakOpenIDHelper
 
 
 from commun.ninja import router_factory
@@ -27,7 +25,6 @@ router = router_factory(tags=["users"])
 
 @router.get("/@ping")
 def ping(request):
-
     return {"msg": "healthy"}
 
 
@@ -40,11 +37,35 @@ def get_users(request: HttpRequest):
 
 @router.post("/", response={201: UserOutSchema})
 def create_user(request: HttpRequest, payload: UserInSchema):
+
     user_dict = payload.dict()
     user = User(**user_dict)
     user.set_password(payload.password)
     user.save()
-    return 201, user
+
+    keycloak = KeycloakAdminHelper()
+    return keycloak.create_user(
+        email=payload.email,
+        username=payload.email,
+        firstname=payload.first_name,
+        lastname=payload.last_name,
+        password=payload.password
+    )
+
+@router.post("/login", auth=None)
+def login_user(request: HttpRequest, data: UserLoginSchema):
+    openid = KeycloakOpenIDHelper()
+    kyc_admin = KeycloakAdminHelper()
+
+    ret = openid.login_user(data.email, data.password)
+    id_user = ret["user_info"]["sub"]
+    user = kyc_admin.get_user_detail(id_user)
+    if "djn_users" in user.get("attributes", {}):
+        return ret
+
+    refresh_token = ret["token"]["refresh_token"]
+    openid.logout_user(refresh_token)
+    raise HttpResponse(status_code=403, detail="Forbidden")
 
 
 @router.get("/{user_id}", response={200: UserOutSchema})
@@ -75,17 +96,3 @@ def logout_user(request: HttpRequest):
         return 403, None
     logout(request)
     return 200, None
-
-
-@router.post("/login", response=UserOutSchema, auth=None)
-def login_user(request: HttpRequest, data: UserLoginSchema):
-    form = AuthenticationForm(data=data.dict())
-    user = authenticate(
-        username=form.cleaned_data.get("username"),
-        password=form.cleaned_data.get("password"),
-    )
-    if user is not None:
-        login(request, user)
-        return JsonResponse(status_code=200, content="Login success")
-    else:
-        return JsonResponse(status_code=401, content="Login refuse")

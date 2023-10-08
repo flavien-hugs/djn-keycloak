@@ -3,7 +3,7 @@ import os
 from .base import *  # noqa F405
 from dotenv import dotenv_values
 
-env = dotenv_values("./secrets/app.djn.env")
+env = dotenv_values("./secrets/djn.env")
 
 abspath = os.path.abspath(__file__)
 dirname = os.path.dirname(os.path.dirname(abspath))

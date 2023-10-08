@@ -1,11 +1,11 @@
-from django.urls import path
 from django.conf import settings
 from django.contrib import admin
+from django.urls import path, include
 
+from account.routers import users_api
 
-from account.api import users_api
 
 urlpatterns = [
-    path("api/", users_api.urls),
     path(settings.ADMIN_URL, admin.site.urls),
+    path("api/", users_api.urls),
 ]

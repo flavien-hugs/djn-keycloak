@@ -1,19 +1,13 @@
 import os
-from .base import *  # noqa F405
+from . import *  # noqa F405
 
-from dotenv import dotenv_values
-
-env = dotenv_values("./secrets/db.env")
-
+abspath = os.path.abspath(__file__)
+dirname = os.path.dirname(os.path.dirname(abspath))
+BASE_DIR = os.path.dirname(dirname)
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": env.get("POSTGRES_DB"),
-        "USER": env.get("POSTGRES_USER"),
-        "PASSWORD": env.get("POSTGRES_PASSWORD"),
-        "HOST": env.get("POSTGRES_HOST"),
-        "PORT": env.get("POSTGRES_PORT"),
-        "ATOMIC_REQUESTS": True,
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
     }
 }

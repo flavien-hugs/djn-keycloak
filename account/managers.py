@@ -1,11 +1,8 @@
-from typing import Optional
-
 from django.utils import timezone
 from django.contrib.auth.models import BaseUserManager
 
 
 class CustomUserManager(BaseUserManager):
-
     def _create_user(self, email: str, password: str, **extra_fields):
 
         if email is None:

@@ -4,3 +4,4 @@ Pipfile.lock
 secrets
 */migrations/*
 *.sqlite3
+*.cfg

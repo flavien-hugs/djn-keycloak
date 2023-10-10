@@ -1,5 +1,3 @@
-import uuid
-
 from django.contrib import admin
 
 from account.models import CustomUser
@@ -15,8 +13,6 @@ class UserAdmin(admin.ModelAdmin):
         if not change:
             super().save_model(request, obj, form, change)
 
-            keycloak_id = self.keycloak_connection.create_user(
-                obj.email, obj.email
-            )
+            keycloak_id = self.keycloak_connection.create_user(obj.email, obj.email)
             obj.keycloak_uuid = keycloak_id
         super().save_model(request, obj, form, change)

@@ -11,10 +11,7 @@ class CustomUser(AbstractUser, PermissionsMixin, BaseTimeStampModel):
 
     username = None
 
-    keycloak_uuid = models.UUIDField(
-        editable=False, unique=True,
-        default=uuid.uuid4
-    )
+    keycloak_uuid = models.UUIDField(editable=False, unique=True, default=uuid.uuid4)
     email = models.EmailField(
         unique=True,
         max_length=180,

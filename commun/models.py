@@ -14,13 +14,9 @@ class BaseTimeStampModel(models.Model):
         editable=False,
     )
     created_at = models.DateTimeField(
-        verbose_name="date de création",
-        db_index=True, default=now
+        verbose_name="date de création", db_index=True, default=now
     )
-    updated_at = models.DateTimeField(
-        verbose_name="date de mise à jour",
-        default=now
-    )
+    updated_at = models.DateTimeField(verbose_name="date de mise à jour", default=now)
 
     class Meta:
         abstract = True

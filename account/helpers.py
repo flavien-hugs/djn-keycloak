@@ -3,7 +3,7 @@ from typing import Optional
 from django.conf import settings
 
 from keycloak import KeycloakOpenIDConnection, KeycloakAdmin, KeycloakOpenID
-from keycloak.exceptions import KeycloakAuthenticationError
+from keycloak.exceptions import KeycloakAuthenticationError, KeycloakConnectionError
 
 
 def refresh_keycloak_token(func):
@@ -11,7 +11,7 @@ def refresh_keycloak_token(func):
     def wrapper(self, *args, **kwargs):
         try:
             return func(self, *args, **kwargs)
-        except KeycloakAuthenticationError:
+        except (KeycloakAuthenticationError, KeycloakConnectionError):
             self._init_keycloak_admin_connection()
             return func(self, *args, **kwargs)
 
@@ -45,7 +45,6 @@ class KeycloakAdminHelper:
         users = self.get_keycloak_admin_connection().get_users({})
         return [user for user in users if "djn_users" in user.get("attributes", {})]
 
-
     @refresh_keycloak_token
     def get_user_detail(self, user_id: str):
         return self.get_keycloak_admin_connection().get_user(user_id)
@@ -56,7 +55,7 @@ class KeycloakAdminHelper:
         username: str,
         password: str,
         firstname: Optional[str] = None,
-        lastname: Optional[str] = None
+        lastname: Optional[str] = None,
     ):
         data = {
             "email": email,
@@ -68,9 +67,20 @@ class KeycloakAdminHelper:
             "credentials": [{"type": "password", "value": password}],
             "attributes": {"locale": ["fr"], "djn_users": True},
         }
-        new_user = self.get_keycloak_admin_connection().create_user(data, exist_ok=False)
+        new_user = self.get_keycloak_admin_connection().create_user(
+            data, exist_ok=False
+        )
         return self.get_keycloak_admin_connection().get_user(new_user)
 
+    @refresh_keycloak_token
+    def update_user(self, user_id: str, first_name: str, last_name: str):
+        update_data = {"firstName": first_name, "lastName": last_name}
+        return self.get_keycloak_admin_connection().update_user(
+            user_id=user_id, payload=update_data
+        )
+
+    def delete_user(self, user_id: str):
+        return self.get_keycloak_admin_connection().delete_user(user_id=user_id)
 
 
 class KeycloakOpenIDHelper:
@@ -93,12 +103,17 @@ class KeycloakOpenIDHelper:
             self._init_keycloak_openid_connection()
         return self._keycloak_openid
 
+    @refresh_keycloak_token
     def login_user(self, username: str, password: str):
         openid = self.get_keycloak_openid_connection()
         token = openid.token(username=username, password=password)
         userinfo = openid.userinfo(token["access_token"])
         return {"token": token, "user_info": userinfo}
 
+    @refresh_keycloak_token
+    def get_access_token(self, access_token: str):
+        return self.get_keycloak_admin_connection().userinfo(access_token)
+
+    @refresh_keycloak_token
     def logout_user(self, refresh_token: str):
         return self.get_keycloak_openid_connection().logout(refresh_token)
-
